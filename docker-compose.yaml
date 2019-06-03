@@ -1,0 +1,59 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo
+  mongoservice:
+    build: ./mongo-service/
+    depends_on:
+     - mongo
+  secret-service:
+    build: ./secret-service/
+    depends_on:
+     - mongoservice
+  dashboard-service:
+    build: ./dashboard-service/
+    depends_on:
+     - account-service
+  authentication-service:
+    build: ./authentication-service/
+    depends_on:
+     - session-token-service
+     - email-service
+     - account-service
+  aes-encryption-service:
+    build: ./aes-encryption-service/
+  email-service:
+    build: ./email-service/
+    depends_on:
+     - mongoservice
+     - aes-encryption-service
+  account-service:
+    build: ./account-service/
+    depends_on:
+     - secret-service
+  session-token-service:
+    build: ./session-token-service/
+    depends_on:
+     - aes-encryption-service
+  role-service:
+    build: ./role-service/
+    depends_on:
+     - mongoservice
+  group-service:
+    build: ./group-service/
+    depends_on:
+     - mongoservice
+  dashboard-client:
+    build: ./dashboard-client/
+  authentication-client:
+    build: ./authentication-client/
+  gateway:
+    build: ./gateway/
+    ports:
+     - target: 80
+       published: 80
+       protocol: tcp
+    depends_on:
+     - dashboard-client
+     - authentication-client
+     - authentication-service

@@ -1,0 +1,6 @@
+Start from the bottom of the diagram provided
+
+Node version 10 
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+sudo apt install nodejs
+
