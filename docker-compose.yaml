@@ -1,59 +1,75 @@
-version: "3.7"
+version: '3.7'
 services:
   mongo:
-    image: mongo
-  mongoservice:
-    build: ./mongo-service/
+    image: mongo:latest
+  mongo-service:
+    image: alinawazmamdani/mongo-service:latest
+    build: ./mongo-service
     depends_on:
-     - mongo
+    - mongo
   secret-service:
-    build: ./secret-service/
+    image: alinawazmamdani/secret-service:latest
+    build: ./secret-service
     depends_on:
-     - mongoservice
-  dashboard-service:
-    build: ./dashboard-service/
-    depends_on:
-     - account-service
-  authentication-service:
-    build: ./authentication-service/
-    depends_on:
-     - session-token-service
-     - email-service
-     - account-service
+    - mongo-service
   aes-encryption-service:
-    build: ./aes-encryption-service/
+    image: alinawazmamdani/aes-encryption-service:latest
+    build: ./aes-encryption-service
   email-service:
-    build: ./email-service/
+    image: alinawazmamdani/email-service:latest
+    build: ./email-service
+    environment:
+      GMAIL_USER: ${GMAIL_USER}
+      GMAIL_PASS: ${GMAIL_PASS}
+      SERVICE_NAME: ${SERVICE_NAME}
     depends_on:
-     - mongoservice
-     - aes-encryption-service
+    - mongo-service
+    - aes-encryption-service
+  dashboard-service:
+    image: alinawazmamdani/dashboard-service:latest
+    build: ./dashboard-service
+    depends_on:
+    - account-service
   account-service:
-    build: ./account-service/
+    image: alinawazmamdani/account-service:latest
+    build: ./account-service
     depends_on:
-     - secret-service
+    - secret-service
+    - mongo-service
   session-token-service:
-    build: ./session-token-service/
+    image: alinawazmamdani/session-token-service:latest
+    build: ./session-token-service
     depends_on:
-     - aes-encryption-service
+    - aes-encryption-service
+    - mongo-service
+  authentication-service:
+    image: alinawazmamdani/authentication-service:latest
+    build: ./authentication-service
+    environment:
+      ACTIVATION_LINK: ${ACTIVATION_LINK}
+    depends_on:
+    - account-service
+    - email-service
+    - session-token-service
   role-service:
-    build: ./role-service/
-    depends_on:
-     - mongoservice
+    image: alinawazmamdani/role-service:latest
+    build: ./role-service
   group-service:
-    build: ./group-service/
-    depends_on:
-     - mongoservice
-  dashboard-client:
-    build: ./dashboard-client/
+    image: alinawazmamdani/group-service:latest
+    build: ./group-service
   authentication-client:
-    build: ./authentication-client/
+    image: alinawazmamdani/authentication-client:latest
+    build: ./authentication-client
+  dashboard-client:
+    image: alinawazmamdani/dashboard-client:latest
+    build: ./dashboard-client
   gateway:
-    build: ./gateway/
+    image: alinawazmamdani/gateway:latest
+    build: ./gateway
     ports:
-     - target: 80
-       published: 80
-       protocol: tcp
+    - target: 80
+      published: 80
     depends_on:
-     - dashboard-client
-     - authentication-client
-     - authentication-service
+    - dashboard-client
+    - authentication-client
+    - authentication-service
