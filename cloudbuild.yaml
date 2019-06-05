@@ -1,4 +1,0 @@
-#cloudbuild.yaml
-steps:
-- name: 'gcr.io/eighth-effect-242713/docker-compose'
-  args: [‘build’, ‘push’]

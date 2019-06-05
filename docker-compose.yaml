@@ -1,75 +1,66 @@
-version: '3.5'
+version: "3.7"
 services:
   mongo:
     image: mongo:latest
   mongo-service:
-    image: gcr.io/eighth-effect-242713/mongo-service:latest
-    build: ./mongo-service
+    build: ./mongo-service/
     depends_on:
-    - mongo
+     - mongo
   secret-service:
-    image: gcr.io/eighth-effect-242713/secret-service:latest
-    build: ./secret-service
+    build: ./secret-service/
     depends_on:
-    - mongo-service
-  aes-encryption-service:
-    image: gcr.io/eighth-effect-242713/aes-encryption-service:latest
-    build: ./aes-encryption-service
-  email-service:
-    image: gcr.io/eighth-effect-242713/email-service:latest
-    build: ./email-service
-    environment:
-      GMAIL_USER: ${GMAIL_USER}
-      GMAIL_PASS: ${GMAIL_PASS}
-      SERVICE_NAME: ${SERVICE_NAME}
-    depends_on:
-    - mongo-service
-    - aes-encryption-service
+     - mongo-service
   dashboard-service:
-    image: gcr.io/eighth-effect-242713/dashboard-service:latest
-    build: ./dashboard-service
+    build: ./dashboard-service/
     depends_on:
-    - account-service
-  account-service:
-    image: gcr.io/eighth-effect-242713/account-service:latest
-    build: ./account-service
-    depends_on:
-    - secret-service
-    - mongo-service
-  session-token-service:
-    image: gcr.io/eighth-effect-242713/session-token-service:latest
-    build: ./session-token-service
-    depends_on:
-    - aes-encryption-service
-    - mongo-service
-  authentication-service:
-    image: gcr.io/eighth-effect-242713/authentication-service:latest
-    build: ./authentication-service
+     - account-service
+     - session-token-service
     environment:
-      ACTIVATION_LINK: ${ACTIVATION_LINK}
+     - ACTIVATION_LINK=http://35.204.241.29/authentication/api/activate
+  authentication-service:
+    build: ./authentication-service/
     depends_on:
-    - account-service
-    - email-service
-    - session-token-service
+     - session-token-service
+     - email-service
+     - account-service
+  aes-encryption-service:
+    build: ./aes-encryption-service/
+  email-service:
+    build: ./email-service/
+    depends_on:
+     - mongoservice
+     - aes-encryption-service
+    environment:
+     - GMAIL_USER=ilovedocker123@gmail.com
+     - GMAIL_PASS=ilovedocker1!
+     - SERVICE_NAME= "CI project"
+  account-service:
+    build: ./account-service/
+    depends_on:
+     - secret-service
+  session-token-service:
+    build: ./session-token-service/
+    depends_on:
+     - aes-encryption-service
   role-service:
-    image: gcr.io/eighth-effect-242713/role-service:latest
-    build: ./role-service
-  group-service:
-    image: gcr.io/eighth-effect-242713/group-service:latest
-    build: ./group-service
-  authentication-client:
-    image: gcr.io/eighth-effect-242713/authentication-client:latest
-    build: ./authentication-client
-  dashboard-client:
-    image: gcr.io/eighth-effect-242713/dashboard-client:latest
-    build: ./dashboard-client
-  gateway:
-    image: gcr.io/eighth-effect-242713/gateway:latest
-    build: ./gateway
-    ports:
-    - target: 80
-      published: 80
+    build: ./role-service/
     depends_on:
-    - dashboard-client
-    - authentication-client
-    - authentication-service
+     - mongo-service
+  group-service:
+    build: ./group-service/
+    depends_on:
+     - mongo-service
+  dashboard-client:
+    build: ./dashboard-client/
+  authentication-client:
+    build: ./authentication-client/
+  gateway:
+    build: ./gateway/
+    ports:
+     - target: 80
+       published: 80
+       protocol: tcp
+    depends_on:
+     - dashboard-client
+     - authentication-client
+     - authentication-service
