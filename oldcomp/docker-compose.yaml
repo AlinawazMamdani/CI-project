@@ -1,0 +1,40 @@
+version: "3.7"
+services:
+  mongo:
+    image: mongo:latest
+  mongo-service:
+    build: ../mongo-service/
+  secret-service:
+    build: ../secret-service/
+  dashboard-service:
+    build: ../dashboard-service/
+    environment:
+     - ACTIVATION_LINK=http://35.204.241.29/authentication/api/activate
+  authentication-service:
+    build: ../authentication-service/
+  aes-encryption-service:
+    build: ../aes-encryption-service/
+  email-service:
+    build: ../email-service/
+    environment:
+     - GMAIL_USER=ilovedocker123@gmail.com
+     - GMAIL_PASS=ilovedocker1!
+     - SERVICE_NAME= "CI project"
+  account-service:
+    build: ../account-service/
+  session-token-service:
+    build: ../session-token-service/
+  role-service:
+    build: ../role-service/
+  group-service:
+    build: ../group-service/
+  dashboard-client:
+    build: ../dashboard-client/
+  authentication-client:
+    build: ../authentication-client/
+  gateway:
+    build: ../gateway/
+    ports:
+     - target: 80
+       published: 80
+       protocol: tcp
